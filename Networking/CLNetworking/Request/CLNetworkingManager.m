@@ -97,8 +97,9 @@ static inline NSString *cachePath() {
  */
 + (void)requestType:(BOOL)isGet url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
     
+    NSString *key = [self cacheKey:urlString params:parameters];
     // 判断网址是否加载过，如果没有加载过 在执行网络请求成功时，将请求时间和网址存入UserDefaults，value为时间date、Key为网址
-    if ([CacheDefaults objectForKey:urlString]) {
+    if ([CacheDefaults objectForKey:key]) {
         // 如果UserDefaults存过网址，判断本地数据是否存在
         id cacheData = [self cahceResponseWithURL:urlString parameters:parameters];
         if (cacheData) {
@@ -109,7 +110,7 @@ static inline NSString *cachePath() {
             }
             // 判断存储时间，如果在规定直接之内，直接return，否则将继续执行网络请求
             if (time) {
-                NSDate *oldDate = [CacheDefaults objectForKey:urlString];
+                NSDate *oldDate = [CacheDefaults objectForKey:key];
                 float cacheTime = [[NSString stringNowTimeDifferenceWith:[NSString stringWithDate:oldDate]] floatValue];
                 if (cacheTime < time) {
                     return;
@@ -138,7 +139,7 @@ static inline NSString *cachePath() {
             // 请求成功，加入缓存，解析数据
             if (isCache) {
                 if (time > 0.0) {
-                    [CacheDefaults setObject:[NSDate date] forKey:urlString];
+                    [CacheDefaults setObject:[NSDate date] forKey:key];
                 }
                 [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
             }
@@ -163,7 +164,7 @@ static inline NSString *cachePath() {
             // 请求成功，加入缓存，解析数据
             if (isCache) {
                 if (time > 0.0) {
-                    [CacheDefaults setObject:[NSDate date] forKey:urlString];
+                    [CacheDefaults setObject:[NSDate date] forKey:key];
                 }
                 [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
             }
@@ -222,6 +223,20 @@ static inline NSString *cachePath() {
 
 #pragma mark -- 缓存处理 --
 /**
+ *  缓存文件夹下某地址的文件名，及UserDefaulets中的key值
+ *
+ *  @param urlString 请求地址
+ *  @param params    请求参数
+ *
+ *  @return 返回一个MD5加密后的字符串
+ */
++ (NSString *)cacheKey:(NSString *)urlString params:(id)params{
+    NSString *absoluteURL = [NSString generateGETAbsoluteURL:urlString params:params];
+    NSString *key = [NSString networkingUrlString_md5:absoluteURL];
+    return key;
+}
+
+/**
  *  读取缓存
  *
  *  @param url    请求地址
@@ -233,8 +248,7 @@ static inline NSString *cachePath() {
     id cacheData = nil;
     if (url) {
         // 读取本地缓存
-        NSString *absoluteURL = [NSString generateGETAbsoluteURL:url params:params];
-        NSString *key = [NSString networkingUrlString_md5:absoluteURL];
+        NSString *key = [self cacheKey:url params:params];
         NSString *path = [cachePath() stringByAppendingPathComponent:key];
         NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
         if (data) {
@@ -252,8 +266,7 @@ static inline NSString *cachePath() {
  *  @param params         拼接的参数
  */
 + (void)cacheResponseObject:(id)responseObject urlString:(NSString *)urlString parameters:(id)params {
-    NSString *absoluteURL = [NSString generateGETAbsoluteURL:urlString params:params];
-    NSString *key = [NSString networkingUrlString_md5:absoluteURL];
+    NSString *key = [self cacheKey:urlString params:params];
     NSString *path = [cachePath() stringByAppendingPathComponent:key];
     [self deleteFileWithPath:path];
     BOOL isOk = [[NSFileManager defaultManager] createFileAtPath:path contents:responseObject attributes:nil];
@@ -266,10 +279,20 @@ static inline NSString *cachePath() {
 
 // 清空缓存
 + (void)clearCaches {
+    // 删除CacheDefaults中的存放时间和地址的键值对，并删除cache文件夹
     NSString *directoryPath = cachePath();
-    if ([[NSFileManager defaultManager] fileExistsAtPath:directoryPath isDirectory:nil]) {
+    NSFileManager *manager = [NSFileManager defaultManager];
+    if ([manager fileExistsAtPath:directoryPath]){
+        NSEnumerator *childFilesEnumerator = [[manager subpathsAtPath:directoryPath] objectEnumerator];
+        NSString *key;
+        while ((key = [childFilesEnumerator nextObject]) != nil){
+            NetworkLog(@"remove_key ==%@",key);
+            [CacheDefaults removeObjectForKey:key];
+        }
+    }
+    if ([manager fileExistsAtPath:directoryPath isDirectory:nil]) {
         NSError *error = nil;
-        [[NSFileManager defaultManager] removeItemAtPath:directoryPath error:&error];
+        [manager removeItemAtPath:directoryPath error:&error];
         if (error) {
             NetworkLog(@"clear caches error: %@", error);
         } else {
