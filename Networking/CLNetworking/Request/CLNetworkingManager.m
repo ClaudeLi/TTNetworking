@@ -7,6 +7,7 @@
 //
 
 #import "CLNetworkingManager.h"
+#import "NSString+cache.h"
 
 // 网络状态，初始值-1：未知网络状态
 static NSInteger networkStatus = -1;
@@ -58,71 +59,127 @@ static inline NSString *cachePath() {
 
 #pragma mark -- GET请求 --
 + (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
-    // 是否开启缓存机制，如果有缓存，读取缓存
-    if (isCache) {
-        id cacheData = [self cahceResponseWithURL:urlString parameters:parameters];
-        if (cacheData) {
-            id dict = [NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
-            if (succeed) {
-                succeed(dict);
-            }
-        }
-    }
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为要获取text/plain类型数据
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    [manager GET:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        // 请求成功，加入缓存，解析数据
-        if (isCache) {
-            [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
-        }
-        id dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
-        if (succeed) {
-            succeed(dict);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        // 请求失败
-        NSString *errorStr = [error localizedDescription];
-        errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
-        if (fail) {
-            fail(errorStr);
-        }
-    }];
+    
+    [self requestType:YES url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
 }
+
+#pragma mark -- GET请求 <含缓存时间> --
++ (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
+    
+    [self requestType:YES url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
+}
+
 
 #pragma mark -- POST请求 --
 + (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
-    // 是否开启缓存机制，如果有缓存，读取缓存
-    if (isCache) {
+    
+    [self requestType:NO url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
+}
+
+#pragma mark -- POST请求 <含缓存时间> --
++ (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
+
+    [self requestType:NO url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
+}
+
+
+#pragma mark -- 网络请求 --
+/**
+ *  网络请求
+ *
+ *  @param isGet      是否为GET请求，YES为get请求，NO为Post请求
+ *  @param urlString  请求地址字符串
+ *  @param parameters 请求参数
+ *  @param isCache    是否缓存
+ *  @param time       缓存时间
+ *  @param succeed    请求成功回调
+ *  @param fail       请求失败回调
+ */
++ (void)requestType:(BOOL)isGet url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
+    
+    // 判断网址是否加载过，如果没有加载过 在执行网络请求成功时，将请求时间和网址存入UserDefaults，value为时间date、Key为网址
+    if ([CacheDefaults objectForKey:urlString]) {
+        // 如果UserDefaults存过网址，判断本地数据是否存在
         id cacheData = [self cahceResponseWithURL:urlString parameters:parameters];
         if (cacheData) {
+            // 如果本地数据存在，读取本地数据，解析并返回给首页
             id dict = [NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
             if (succeed) {
                 succeed(dict);
             }
+            // 判断存储时间，如果在规定直接之内，直接return，否则将继续执行网络请求
+            if (time) {
+                NSDate *oldDate = [CacheDefaults objectForKey:urlString];
+                float cacheTime = [[NSString stringNowTimeDifferenceWith:[NSString stringWithDate:oldDate]] floatValue];
+                if (cacheTime < time) {
+                    return;
+                }
+            }
+        }
+    }else{
+        // 判断是否开启缓存
+        if (isCache) {
+            id cacheData = [self cahceResponseWithURL:urlString parameters:parameters];
+            if (cacheData) {
+                id dict = [NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
+                if (succeed) {
+                    succeed(dict);
+                }
+            }
         }
     }
+    
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为要获取text/plain类型数据
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    [manager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
-        // 请求的进度
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        // 请求成功，加入缓存，解析数据
-        if (isCache) {
-            [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
-        }
-        id dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
-        if (succeed) {
-            succeed(dict);
-        }
-    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        // 请求失败
-        NSString *errorStr = [error localizedDescription];
-        errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
-        if (fail) {
-            fail(errorStr);
-        }
-    }];
+    if (isGet) {
+        // GET请求
+        [manager GET:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            // 请求成功，加入缓存，解析数据
+            if (isCache) {
+                if (time > 0.0) {
+                    [CacheDefaults setObject:[NSDate date] forKey:urlString];
+                }
+                [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
+            }
+            id dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
+            if (succeed) {
+                succeed(dict);
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            // 请求失败
+            NSString *errorStr = [error localizedDescription];
+            errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
+            if (fail) {
+                fail(errorStr);
+            }
+        }];
+        
+    }else{
+        // POST请求
+        [manager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+            // 请求的进度
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            // 请求成功，加入缓存，解析数据
+            if (isCache) {
+                if (time > 0.0) {
+                    [CacheDefaults setObject:[NSDate date] forKey:urlString];
+                }
+                [self cacheResponseObject:responseObject urlString:urlString parameters:parameters];
+            }
+            id dict = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
+            if (succeed) {
+                succeed(dict);
+            }
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            // 请求失败
+            NSString *errorStr = [error localizedDescription];
+            errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
+            if (fail) {
+                fail(errorStr);
+            }
+        }];
+    }
 }
 
 #pragma mark -- 上传图片 --
@@ -142,7 +199,7 @@ static inline NSString *cachePath() {
             // 如果文件名为空，以时间命名文件名
             imageFileName = [NSString imageFileName];
         }
-        [formData appendPartWithFileData:imageData name:imageFileName fileName:imageFileName mimeType:[NSString imageFieldType]];
+        [formData appendPartWithFileData:imageData name:model.field fileName:imageFileName mimeType:[NSString imageFieldType]];
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         float uploadKB = uploadProgress.completedUnitCount/1024.0;
         float grossKB = uploadProgress.totalUnitCount/1024.0;

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		36F0152F50AE317B3EBD1A3F /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F14837AF8FB1E872E840209E /* libPods.a */; };
+		D3B463F31CE2DE4500524EFB /* NSString+cache.m in Sources */ = {isa = PBXBuildFile; fileRef = D3B463F21CE2DE4500524EFB /* NSString+cache.m */; };
 		D3C43E231CD09D1700DFB2BE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C43E221CD09D1700DFB2BE /* main.m */; };
 		D3C43E261CD09D1700DFB2BE /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C43E251CD09D1700DFB2BE /* AppDelegate.m */; };
 		D3C43E291CD09D1700DFB2BE /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D3C43E281CD09D1700DFB2BE /* ViewController.m */; };
@@ -24,6 +25,8 @@
 /* Begin PBXFileReference section */
 		0ED88C83C6932C32EC169096 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		33DE55F80FB7C4E3679366BC /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		D3B463F11CE2DE4500524EFB /* NSString+cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+cache.h"; sourceTree = "<group>"; };
+		D3B463F21CE2DE4500524EFB /* NSString+cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+cache.m"; sourceTree = "<group>"; };
 		D3C43E1E1CD09D1700DFB2BE /* Networking.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Networking.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3C43E221CD09D1700DFB2BE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D3C43E241CD09D1700DFB2BE /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -146,6 +149,8 @@
 				D3D921E81CD31DEC00B54F2A /* CLImageModel.m */,
 				D3D921E91CD31DEC00B54F2A /* NSString+tools.h */,
 				D3D921EA1CD31DEC00B54F2A /* NSString+tools.m */,
+				D3B463F11CE2DE4500524EFB /* NSString+cache.h */,
+				D3B463F21CE2DE4500524EFB /* NSString+cache.m */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -275,6 +280,7 @@
 			files = (
 				D3C43E291CD09D1700DFB2BE /* ViewController.m in Sources */,
 				D3C43E261CD09D1700DFB2BE /* AppDelegate.m in Sources */,
+				D3B463F31CE2DE4500524EFB /* NSString+cache.m in Sources */,
 				D3D921EC1CD31DEC00B54F2A /* CLImageModel.m in Sources */,
 				D3C43E231CD09D1700DFB2BE /* main.m in Sources */,
 				D3D921EB1CD31DEC00B54F2A /* CLNetworkingManager.m in Sources */,

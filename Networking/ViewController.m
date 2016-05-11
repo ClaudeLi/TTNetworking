@@ -40,12 +40,22 @@
 - (void)clickButtonAction{
     NSString * titleURL = [NSString stringWithFormat:@"%@&c=school&m=get_dance",KMain_URL];
 //    NSString *titleURL = [NSString  stringWithFormat:@"%@&c=user&m=send_reg_sms&phone=0",KMain_URL];
+    
     // GET请求
-    [CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
+    
+//    [CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
+//        NSLog(@"%@",data);
+//    } fail:^(NSString *error) {
+//        NSLog(@"%@", error);
+//    }];
+    
+    // GET请求 带缓存时间
+    [CLNetworkingManager getCacheRequestWithUrlString:titleURL parameters:nil cacheTime:0.5 succeed:^(id data) {
         NSLog(@"%@",data);
     } fail:^(NSString *error) {
         NSLog(@"%@", error);
     }];
+    
     
     // 上传图片
 //    CLImageModel *model = [[CLImageModel alloc] init];

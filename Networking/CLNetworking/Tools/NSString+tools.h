@@ -25,13 +25,6 @@
 + (NSString *)imageFieldType;
 
 /**
- *  网络缓存地址
- *
- *  @return Caches路径
- */
-+ (NSString *)cachesPathString;
-
-/**
  *  生成AbsoluteURL（仅对一级字典结构起作用）
  *
  *  @param url    请求地址

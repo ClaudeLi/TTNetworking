@@ -25,6 +25,8 @@
 #define NetworkLog(s, ... )
 #endif
 
+#define CacheDefaults [NSUserDefaults standardUserDefaults]
+
 // 网络缓存文件夹名
 #define NetworkCache @"NetworkCache"
 
