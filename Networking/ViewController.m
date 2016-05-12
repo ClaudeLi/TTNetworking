@@ -10,7 +10,7 @@
 #import "CLNetworking.h"
 
 // 测试URL
-#define KMain_URL @"http://123.59.147.87/interface/?version=2.7.8&platform=ios"
+#define KMain_URL @"http://123.59.147.87/interface/?"
 
 @interface ViewController ()
 

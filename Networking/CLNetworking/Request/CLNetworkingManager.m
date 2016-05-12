@@ -9,6 +9,11 @@
 #import "CLNetworkingManager.h"
 #import "NSString+cache.h"
 
+typedef NS_ENUM(NSInteger, NetworkRequestType) {
+    NetworkRequestTypeGET,  // GET请求
+    NetworkRequestTypePOST,  // POST请求
+};
+
 // 网络状态，初始值-1：未知网络状态
 static NSInteger networkStatus = -1;
 
@@ -60,26 +65,26 @@ static inline NSString *cachePath() {
 #pragma mark -- GET请求 --
 + (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
     
-    [self requestType:YES url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
+    [self requestType:NetworkRequestTypeGET url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
 }
 
 #pragma mark -- GET请求 <含缓存时间> --
 + (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
     
-    [self requestType:YES url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
+    [self requestType:NetworkRequestTypeGET url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
 }
 
 
 #pragma mark -- POST请求 --
 + (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
     
-    [self requestType:NO url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
+    [self requestType:NetworkRequestTypePOST url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
 }
 
 #pragma mark -- POST请求 <含缓存时间> --
 + (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
 
-    [self requestType:NO url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
+    [self requestType:NetworkRequestTypePOST url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
 }
 
 
@@ -87,7 +92,7 @@ static inline NSString *cachePath() {
 /**
  *  网络请求
  *
- *  @param isGet      是否为GET请求，YES为get请求，NO为Post请求
+ *  @param type       请求类型，get请求/Post请求
  *  @param urlString  请求地址字符串
  *  @param parameters 请求参数
  *  @param isCache    是否缓存
@@ -95,7 +100,7 @@ static inline NSString *cachePath() {
  *  @param succeed    请求成功回调
  *  @param fail       请求失败回调
  */
-+ (void)requestType:(BOOL)isGet url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)requestType:(NetworkRequestType)type url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
     
     NSString *key = [self cacheKey:urlString params:parameters];
     // 判断网址是否加载过，如果没有加载过 在执行网络请求成功时，将请求时间和网址存入UserDefaults，value为时间date、Key为网址
@@ -133,7 +138,7 @@ static inline NSString *cachePath() {
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为要获取text/plain类型数据
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    if (isGet) {
+    if (type == NetworkRequestTypeGET) {
         // GET请求
         [manager GET:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             // 请求成功，加入缓存，解析数据
