@@ -1,14 +1,14 @@
 //
-//  NSString+cache.h
-//  Trip
+//  NSString+Cache.h
+//  Networking
 //
-//  Created by ClaudeLi on 16/5/10.
-//  Copyright © 2016年 MonetWu. All rights reserved.
+//  Created by ClaudeLi on 16/5/26.
+//  Copyright © 2016年 ClaudeLi. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (cache)
+@interface NSString (Cache)
 
 /**
  *  网络缓存地址

@@ -1,15 +1,15 @@
 //
-//  NSString+tools.m
+//  NSString+CLTools.m
 //  Networking
 //
-//  Created by ClaudeLi on 16/4/28.
+//  Created by ClaudeLi on 16/5/26.
 //  Copyright © 2016年 ClaudeLi. All rights reserved.
 //
 
-#import "NSString+tools.h"
+#import "NSString+CLTools.h"
 #import <CommonCrypto/CommonDigest.h>
 
-@implementation NSString (tools)
+@implementation NSString (CLTools)
 
 + (NSString *)imageFileName{
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];

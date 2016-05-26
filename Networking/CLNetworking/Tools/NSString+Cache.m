@@ -1,15 +1,15 @@
 //
-//  NSString+cache.m
-//  Trip
+//  NSString+Cache.m
+//  Networking
 //
-//  Created by ClaudeLi on 16/5/10.
-//  Copyright © 2016年 MonetWu. All rights reserved.
+//  Created by ClaudeLi on 16/5/26.
+//  Copyright © 2016年 ClaudeLi. All rights reserved.
 //
 
-#import "NSString+cache.h"
+#import "NSString+Cache.h"
 #import "CLNetworking.h"
 
-@implementation NSString (cache)
+@implementation NSString (Cache)
 
 + (NSString *)cachesPathString{
     //Caches目录
@@ -56,7 +56,6 @@
     NSString *timeString=@"";
     
     timeString = [NSString stringWithFormat:@"%.2f", dd/60.0];
-    NetworkLog(@"==%@分钟前",timeString);
     return timeString;
 }
 

@@ -16,7 +16,7 @@
 
 #import "CLNetworkingManager.h"
 #import "CLImageModel.h"
-#import "NSString+tools.h"
+#import "NSString+CLTools.h"
 
 //重写NSLog,Debug模式下打印日志和当前行数
 #ifdef DEBUG

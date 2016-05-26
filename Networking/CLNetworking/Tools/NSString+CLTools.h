@@ -1,14 +1,14 @@
 //
-//  NSString+tools.h
+//  NSString+CLTools.h
 //  Networking
 //
-//  Created by ClaudeLi on 16/4/28.
+//  Created by ClaudeLi on 16/5/26.
 //  Copyright © 2016年 ClaudeLi. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@interface NSString (tools)
+@interface NSString (CLTools)
 
 /**
  *  要保存在服务器上的[文件名]
@@ -42,5 +42,7 @@
  *  @return 加密后的字符串
  */
 + (NSString *)networkingUrlString_md5:(NSString *)string;
+
+
 
 @end

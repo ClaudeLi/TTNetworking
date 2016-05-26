@@ -7,7 +7,7 @@
 //
 
 #import "CLNetworkingManager.h"
-#import "NSString+cache.h"
+#import "NSString+Cache.h"
 
 typedef NS_ENUM(NSInteger, NetworkRequestType) {
     NetworkRequestTypeGET,  // GET请求
