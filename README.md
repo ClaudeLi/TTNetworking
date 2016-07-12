@@ -107,36 +107,38 @@ fail:(void (^)(NSString *error))fail;
 
 使用方法：
 
-// Appdelegate检测网络状态
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-// 检查网络状态
-[CLNetworkingManager checkNetworkLinkStatus];
-return YES;
-}
 
-// GET请求
-[CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
-NSLog(@"%@",data);
-} fail:^(NSString *error) {
-NSLog(@"%@", error);
-}];
-
-// GET请求 带缓存时间
-[CLNetworkingManager getCacheRequestWithUrlString:titleURL parameters:nil cacheTime:0.5 succeed:^(id data) {
-NSLog(@"%@",data);
-} fail:^(NSString *error) {
-NSLog(@"%@", error);
-}];
+        // Appdelegate检测网络状态
+        - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+            // 检查网络状态
+            [CLNetworkingManager checkNetworkLinkStatus];
+            return YES;
+        }
 
 
-// 上传图片
-CLImageModel *model = [[CLImageModel alloc] init];
-model.image = [UIImage imageNamed:@"imaged625f"];
-model.field = @"file";
-[CLNetworkingManager uploadWithURLString:titleURL parameters:nil model:model progress:^(float writeKB, float totalKB) {
-NSLog(@"writeKB = %f, totalKB = %f", writeKB, totalKB);
-} succeed:^{
-NSLog(@"成功");
-} fail:^(NSString *error) {
-NSLog(@"%@", error);
-}];
+        // GET请求
+        [CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
+            NSLog(@"%@",data);
+        } fail:^(NSString *error) {
+            NSLog(@"%@", error);
+        }];
+
+        // GET请求 带缓存时间
+        [CLNetworkingManager getCacheRequestWithUrlString:titleURL parameters:nil cacheTime:0.5 succeed:^(id data) {
+            NSLog(@"%@",data);
+        } fail:^(NSString *error) {
+            NSLog(@"%@", error);
+        }];
+
+
+        // 上传图片
+        CLImageModel *model = [[CLImageModel alloc] init];
+        model.image = [UIImage imageNamed:@"imaged625f"];
+        model.field = @"file";
+        [CLNetworkingManager uploadWithURLString:titleURL parameters:nil model:model progress:^(float writeKB, float totalKB) {
+            NSLog(@"writeKB = %f, totalKB = %f", writeKB, totalKB);
+        } succeed:^{
+            NSLog(@"成功");
+        } fail:^(NSString *error) {
+            NSLog(@"%@", error);
+        }];
