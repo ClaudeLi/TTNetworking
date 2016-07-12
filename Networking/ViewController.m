@@ -68,6 +68,34 @@
 //    } fail:^(NSString *error) {
 //        NSLog(@"%@", error);
 //    }];
+    
+//    // 需要上传的东西
+//    UIImage *uploadImage;
+//    NSString *api_keyString;
+//    NSString *api_secretString;
+//    
+//    NSString *imageFileName = @"自定义，一般以时间戳命名";
+//    
+//    // 地址
+//    NSString *urlString;
+//    // 上传参数
+//    NSDictionary *dic = @{@"api_key":api_keyString, @"api_secret":api_secretString};
+//    
+//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+//    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+//    [manager POST:urlString parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+//        // 拼接data到请求体，这个block的参数是遵守AFMultipartFormData协议的。
+//        NSData *imageData = UIImageJPEGRepresentation(uploadImage, 1);
+//        [formData appendPartWithFileData:imageData name:@"image" fileName:imageFileName mimeType:@"image/jpeg"];
+//    } progress:^(NSProgress * _Nonnull uploadProgress) {
+//        float uploadKB = uploadProgress.completedUnitCount/1024.0;
+//        float grossKB = uploadProgress.totalUnitCount/1024.0;
+//        NSLog(@"已上传=%f, 总共=%f", uploadKB, grossKB);
+//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+//        NSLog(@"成功 responseObject = %@", responseObject);
+//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+//        NSLog(@"失败 error = %@", error);
+//    }];
 }
 
 - (void)clearButtonAction{

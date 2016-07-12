@@ -114,7 +114,7 @@ static inline NSString *cachePath() {
                 succeed(dict);
             }
             // 判断存储时间，如果在规定直接之内，直接return，否则将继续执行网络请求
-            if (time) {
+            if (time > 0) {
                 NSDate *oldDate = [CacheDefaults objectForKey:key];
                 float cacheTime = [[NSString stringNowTimeDifferenceWith:[NSString stringWithDate:oldDate]] floatValue];
                 if (cacheTime < time) {
