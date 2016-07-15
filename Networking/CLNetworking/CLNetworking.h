@@ -30,6 +30,4 @@
 // 网络缓存文件夹名
 #define NetworkCache @"NetworkCache"
 
-#define ErrorNotReachable @"网络不给力"
-
 #endif /* CLNetworking_h */

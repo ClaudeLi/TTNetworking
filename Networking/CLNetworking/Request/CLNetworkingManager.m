@@ -63,26 +63,26 @@ static inline NSString *cachePath() {
 }
 
 #pragma mark -- GET请求 --
-+ (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail{
     
     [self requestType:NetworkRequestTypeGET url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
 }
 
 #pragma mark -- GET请求 <含缓存时间> --
-+ (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail{
     
     [self requestType:NetworkRequestTypeGET url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
 }
 
 
 #pragma mark -- POST请求 --
-+ (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail{
     
     [self requestType:NetworkRequestTypePOST url:urlString parameters:parameters isCache:isCache cacheTime:0.0 succeed:succeed fail:fail];
 }
 
 #pragma mark -- POST请求 <含缓存时间> --
-+ (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail{
 
     [self requestType:NetworkRequestTypePOST url:urlString parameters:parameters isCache:YES cacheTime:time succeed:succeed fail:fail];
 }
@@ -100,7 +100,7 @@ static inline NSString *cachePath() {
  *  @param succeed    请求成功回调
  *  @param fail       请求失败回调
  */
-+ (void)requestType:(NetworkRequestType)type url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail{
++ (void)requestType:(NetworkRequestType)type url:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail{
     
     NSString *key = [self cacheKey:urlString params:parameters];
     // 判断网址是否加载过，如果没有加载过 在执行网络请求成功时，将请求时间和网址存入UserDefaults，value为时间date、Key为网址
@@ -108,16 +108,16 @@ static inline NSString *cachePath() {
         // 如果UserDefaults存过网址，判断本地数据是否存在
         id cacheData = [self cahceResponseWithURL:urlString parameters:parameters];
         if (cacheData) {
-            // 如果本地数据存在，读取本地数据，解析并返回给首页
-            id dict = [NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
-            if (succeed) {
-                succeed(dict);
-            }
-            // 判断存储时间，如果在规定直接之内，直接return，否则将继续执行网络请求
+            // 如果本地数据存在
+            // 判断存储时间，如果在规定直接之内，读取本地数据，解析并return，否则将继续执行网络请求
             if (time > 0) {
                 NSDate *oldDate = [CacheDefaults objectForKey:key];
                 float cacheTime = [[NSString stringNowTimeDifferenceWith:[NSString stringWithDate:oldDate]] floatValue];
                 if (cacheTime < time) {
+                    id dict = [NSJSONSerialization JSONObjectWithData:cacheData options:NSJSONReadingMutableContainers | NSJSONReadingMutableLeaves error:nil];
+                    if (succeed) {
+                        succeed(dict);
+                    }
                     return;
                 }
             }
@@ -154,10 +154,8 @@ static inline NSString *cachePath() {
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             // 请求失败
-            NSString *errorStr = [error localizedDescription];
-            errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
             if (fail) {
-                fail(errorStr);
+                fail(error);
             }
         }];
         
@@ -179,10 +177,8 @@ static inline NSString *cachePath() {
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             // 请求失败
-            NSString *errorStr = [error localizedDescription];
-            errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
             if (fail) {
-                fail(errorStr);
+                fail(error);
             }
         }];
     }
@@ -194,7 +190,7 @@ static inline NSString *cachePath() {
                       model:(CLImageModel *)model
                    progress:(void (^)(float writeKB, float totalKB)) progress
                     succeed:(void (^)())succeed
-                       fail:(void (^)(NSString *error))fail{
+                       fail:(void (^)(NSError *error))fail{
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     [manager POST:URLString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
@@ -218,10 +214,8 @@ static inline NSString *cachePath() {
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         // 请求失败
-        NSString *errorStr = [error localizedDescription];
-        errorStr = ([self theNetworkStatus] == 0) ? ErrorNotReachable:errorStr;
         if (fail) {
-            fail(errorStr);
+            fail(error);
         }
     }];
 }

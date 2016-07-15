@@ -34,7 +34,7 @@
  *  @param succeed    请求成功
  *  @param fail       请求失败
  */
-+ (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail;
++ (void)getNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail;
 
 /**
  *  Get请求 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
@@ -45,7 +45,7 @@
  *  @param succeed    请求成功
  *  @param fail       请求失败
  */
-+ (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail;
++ (void)getCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail;
 
 /**
  *  Post请求 <若开启缓存，先读取本地缓存数据，再进行网络请求，>
@@ -56,7 +56,7 @@
  *  @param succeed    请求成功
  *  @param fail       请求失败
  */
-+ (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail;
++ (void)postNetworkRequestWithUrlString:(NSString *)urlString parameters:(id)parameters isCache:(BOOL)isCache succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail;
 
 /**
  *  Post请求 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
@@ -67,7 +67,7 @@
  *  @param succeed    请求成功
  *  @param fail       请求失败
  */
-+ (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSString *error))fail;
++ (void)postCacheRequestWithUrlString:(NSString *)urlString parameters:(id)parameters cacheTime:(float)time succeed:(void(^)(id data))succeed fail:(void(^)(NSError *error))fail;
 
 /**
  *  上传图片
@@ -84,7 +84,7 @@
                       model:(CLImageModel *)model
                    progress:(void (^)(float writeKB, float totalKB)) progress
                     succeed:(void (^)())succeed
-                       fail:(void (^)(NSString *error))fail;
+                       fail:(void (^)(NSError *error))fail;
 
 /**
  *  清理缓存
