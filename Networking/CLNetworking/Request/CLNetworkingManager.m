@@ -22,7 +22,19 @@ static inline NSString *cachePath() {
     return [NSString cachesPathString];
 }
 
+static AFHTTPSessionManager *afnManager;
 @implementation CLNetworkingManager
+
++ (AFHTTPSessionManager *)httpManager{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        afnManager = [AFHTTPSessionManager manager];
+        // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为要获取text/plain类型数据
+        afnManager.requestSerializer.timeoutInterval = 15;
+        afnManager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    });
+    return afnManager;
+}
 
 #pragma mark -- 网络判断 --
 + (void)checkNetworkLinkStatus{
@@ -57,7 +69,7 @@ static inline NSString *cachePath() {
     [reachability startMonitoring];
 }
 
-+ (NSInteger)theNetworkStatus{
++ (NSInteger)currentNetworkStatus{
     // 调用完checkNetworkLinkStatus,才可以调用此方法
     return networkStatus;
 }
@@ -135,12 +147,9 @@ static inline NSString *cachePath() {
         }
     }
     
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    // 不加上这句话，会报“Request failed: unacceptable content-type: text/plain”错误，因为要获取text/plain类型数据
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     if (type == NetworkRequestTypeGET) {
         // GET请求
-        [manager GET:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [[CLNetworkingManager httpManager] GET:urlString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             // 请求成功，加入缓存，解析数据
             if (isCache) {
                 if (time > 0.0) {
@@ -161,7 +170,7 @@ static inline NSString *cachePath() {
         
     }else{
         // POST请求
-        [manager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        [[CLNetworkingManager httpManager] POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
             // 请求的进度
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             // 请求成功，加入缓存，解析数据
@@ -344,6 +353,16 @@ static inline NSString *cachePath() {
     } else {
         NetworkLog(@"no file by that name");
     }
+}
+
++ (void)clearWithUrlString:(NSString *)urlString params:(id)params{
+    NSString *key = [self cacheKey:urlString params:params];
+    NSString *path = [cachePath() stringByAppendingPathComponent:key];
+    [self deleteFileWithPath:path];
+}
+
++ (void)stopNetworking{
+    [[[CLNetworkingManager httpManager] operationQueue] cancelAllOperations];
 }
 
 @end

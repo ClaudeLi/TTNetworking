@@ -23,7 +23,7 @@
  *
  *  @return -1:未知, 0:无网络, 1:2G|3G|4G, 2:WIFI
  */
-+ (NSInteger)theNetworkStatus;
++ (NSInteger)currentNetworkStatus;
 
 /**
  *  Get请求 <若开启缓存，先读取本地缓存数据，再进行网络请求>
@@ -87,15 +87,26 @@
                        fail:(void (^)(NSError *error))fail;
 
 /**
- *  清理缓存
- */
-+ (void)clearCaches;
-
-/**
  *  获取网络缓存文件大小
  *
  *  @return 多少KB
  */
 + (float)getCacheFileSize;
+
+/**
+ *  清理单个缓存
+ *
+ *  @param urlString 缓存url
+ *  @param params    请求参数
+ */
++ (void)clearWithUrlString:(NSString *)urlString params:(id)params;
+
+/**
+ *  清空缓存
+ */
++ (void)clearCaches;
+
+// 停止请求
++ (void)stopNetworking;
 
 @end
