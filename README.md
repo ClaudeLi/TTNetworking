@@ -1,101 +1,163 @@
-# CLNetworking
-基于AFNetworking3.0,简单的二次封装网络请求 
+# TTNetworking
+基于AFNetworking3.0封装的网络请求框架
 
-基于AFNetworking3.0， Get请求、Post请求、图片上传及缓存处理的简单封装
-
-/**
-*  监听网络状态,程序启动执行一次即可
-*/
-+ (void)checkNetworkLinkStatus;
+支持 Get、Post请求的缓存处理、 文件上传及下载
 
 /**
-*  读取当前网络状态
-*
-*  @return -1:未知, 0:无网络, 1:2G|3G|4G, 2:WIFI
+请求实例
+
+@return AFHTTPSessionManager obj
 */
-+ (NSInteger)theNetworkStatus;
++ (AFHTTPSessionManager *)manager;
 
 /**
-*  Get请求 <若开启缓存，先读取本地缓存数据，再进行网络请求>
-*
-*  @param urlString  请求地址
-*  @param parameters 拼接的参数
-*  @param isCache    是否开启缓存
-*  @param succeed    请求成功
-*  @param fail       请求失败
+缓存路径
+
+@return path
 */
-+ (void)getNetworkRequestWithUrlString:(NSString *)urlString
++ (NSString *)cachePath;
+
+/**
+启用网络状态检测
+
+@param block 回调 status网络状态 AFNetworkReachabilityStatus
+
+*/
++ (void)checkNetworkStatus:(void(^)(NSInteger status))block;
+
+/**
+当前网络状态
+
+@return status AFNetworkReachabilityStatus
+*/
++ (NSInteger)currentNetworkStatus;
+
+
+/**
+GET请求, <无缓存,直接请求>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param success 成功回调
+@param failure 失败回调
+*/
++ (void)GET:(NSString *)URLString
 parameters:(id)parameters
-isCache:(BOOL)isCache
-succeed:(void(^)(id data))succeed
-fail:(void(^)(NSString *error))fail;
+success:(void (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
-*  Get请求 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
-*
-*  @param urlString  请求地址
-*  @param parameters 拼接的参数
-*  @param time       缓存时间（单位：分钟）
-*  @param succeed    请求成功
-*  @param fail       请求失败
+GET请求, 开启缓存 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param cacheTime 缓存时间
+@param isRefresh 是否刷新
+@param success 成功回调
+@param failure 失败回调
 */
-+ (void)getCacheRequestWithUrlString:(NSString *)urlString 
++ (void)GET:(NSString *)URLString
 parameters:(id)parameters
-cacheTime:(float)time 
-succeed:(void(^)(id data))succeed
-fail:(void(^)(NSString *error))fail;
+cacheTime:(NSTimeInterval)cacheTime
+isRefresh:(BOOL)isRefresh
+success:(BOOL (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
-*  Post请求 <若开启缓存，先读取本地缓存数据，再进行网络请求，>
-*
-*  @param urlString  请求地址
-*  @param parameters 拼接的参数
-*  @param isCache    是否开启缓存机制
-*  @param succeed    请求成功
-*  @param fail       请求失败
+GET请求 <若读取到缓存数据, 是否继续请求新的数据>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param cacheTime 缓存时间
+@param requestNewData 是否请求新的数据
+@param success 成功回调
+@param failure 失败回调
 */
-+ (void)postNetworkRequestWithUrlString:(NSString *)urlString 
++ (void)GET:(NSString *)URLString
 parameters:(id)parameters
-isCache:(BOOL)isCache 
-succeed:(void(^)(id data))succeed
-fail:(void(^)(NSString *error))fail;
+cacheTime:(NSTimeInterval)cacheTime
+requestNewData:(BOOL)requestNewData
+success:(BOOL (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
-*  Post请求 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
-*
-*  @param urlString  请求地址
-*  @param parameters 拼接的参数
-*  @param time       缓存时间（单位：分钟）
-*  @param succeed    请求成功
-*  @param fail       请求失败
+POST请求, <无缓存,直接请求>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param success 成功回调
+@param failure 失败回调
 */
-+ (void)postCacheRequestWithUrlString:(NSString *)urlString 
++ (void)POST:(NSString *)URLString
 parameters:(id)parameters
-cacheTime:(float)time
-succeed:(void(^)(id data))succeed
-fail:(void(^)(NSString *error))fail;
+success:(void (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
-*  上传图片
-*
-*  @param URLString  请求地址
-*  @param parameters 拼接的参数
-*  @param model      要上传的图片model
-*  @param progress   上传进度(writeKB：已上传多少KB, totalKB：总共多少KB)
-*  @param succeed    上传成功
-*  @param fail       上传失败
+POST请求, 开启缓存 <在缓存时间之内只读取缓存数据，不会再次网络请求，减少服务器请求压力。缺点：在缓存时间内服务器数据改变，缓存数据不会及时刷新>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param cacheTime 缓存时间
+@param isRefresh 是否刷新
+@param success 成功回调,返回YES缓存,反之不缓存
+@param failure 失败回调
 */
-+ (void)uploadWithURLString:(NSString *)URLString
++ (void)POST:(NSString *)URLString
 parameters:(id)parameters
-model:(CLImageModel *)model
-progress:(void (^)(float writeKB, float totalKB)) progress
-succeed:(void (^)())succeed
-fail:(void (^)(NSString *error))fail;
+cacheTime:(NSTimeInterval)cacheTime
+isRefresh:(BOOL)isRefresh
+success:(BOOL (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
-*  清理缓存
+POST请求 <若读取到缓存数据, 是否继续请求新的数据>
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param cacheTime 缓存时间
+@param requestNewData 是否请求新的数据
+@param success 成功回调,返回YES缓存,反之不缓存
+@param failure 失败回调
 */
-+ (void)clearCaches;
++ (void)POST:(NSString *)URLString
+parameters:(id)parameters
+cacheTime:(NSTimeInterval)cacheTime
+requestNewData:(BOOL)requestNewData
+success:(BOOL (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
+
+/**
+文件下载
+
+@param URLString 下载地址
+@param outputPath 存储路径
+@param progress 下载进度
+@param completionHandler completionHandler description
+@return NSURLSessionDownloadTask obj
+*/
++ (NSURLSessionDownloadTask *)downloadWithURLString:(NSString *)URLString
+outputPath:(NSString *(^)(NSURLResponse *response))outputPath
+progress:(void (^)(int64_t totalUnit, int64_t completedUnit))progress
+completionHandler:(void (^)(NSURLResponse *response, NSURL *filePath, NSError *error))completionHandler;
+
+
+/**
+文件上传
+
+@param URLString 请求地址
+@param parameters 请求参数
+@param uploadObj 上传对象
+@param progress 上传进度
+@param success 成功回调
+@param failure 失败回调
+*/
++ (NSURLSessionDataTask *)uploadWithURLString:(NSString *)URLString
+parameters:(id)parameters
+uploadObj:(TTUploadObject *)uploadObj
+progress:(void (^)(int64_t completedUnit, int64_t totalUnit))progress
+success:(BOOL (^)(id responseObject))success
+failure:(void (^)(NSError *error))failure;
 
 /**
 *  获取网络缓存文件大小
@@ -104,41 +166,58 @@ fail:(void (^)(NSString *error))fail;
 */
 + (float)getCacheFileSize;
 
+/**
+*  清空缓存
+*/
++ (void)clearCaches;
 
-使用方法：
+/**
+*  清理单个缓存
+*
+*  @param urlString 缓存url
+*  @param params    请求参数
+*/
++ (void)clearWithUrlString:(NSString *)urlString params:(id)params;
 
+/**
+The data, upload, and download tasks currently run by the managed session.
+*/
++ (NSArray<NSURLSessionTask *> *)tasks;
 
-        // Appdelegate检测网络状态
-        - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-            // 检查网络状态
-            [CLNetworkingManager checkNetworkLinkStatus];
-            return YES;
-        }
+/**
+数据任务
+*/
++ (NSArray<NSURLSessionDataTask *> *)dataTasks;
 
+/**
+上传任务
+*/
++ (NSArray<NSURLSessionUploadTask *> *)uploadTasks;
 
-        // GET请求
-        [CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
-            NSLog(@"%@",data);
-        } fail:^(NSString *error) {
-            NSLog(@"%@", error);
-        }];
+/**
+下载任务
+*/
++ (NSArray<NSURLSessionDownloadTask *> *)downloadTasks;
 
-        // GET请求 带缓存时间
-        [CLNetworkingManager getCacheRequestWithUrlString:titleURL parameters:nil cacheTime:0.5 succeed:^(id data) {
-            NSLog(@"%@",data);
-        } fail:^(NSString *error) {
-            NSLog(@"%@", error);
-        }];
+/**
+Invalidates the managed session, optionally canceling pending tasks.
 
+@param cancelPendingTasks Whether or not to cancel pending tasks.
+*/
++ (void)invalidateSessionCancelingTasks:(BOOL)cancelPendingTasks;
 
-        // 上传图片
-        CLImageModel *model = [[CLImageModel alloc] init];
-        model.image = [UIImage imageNamed:@"imaged625f"];
-        model.field = @"file";
-        [CLNetworkingManager uploadWithURLString:titleURL parameters:nil model:model progress:^(float writeKB, float totalKB) {
-            NSLog(@"writeKB = %f, totalKB = %f", writeKB, totalKB);
-        } succeed:^{
-            NSLog(@"成功");
-        } fail:^(NSString *error) {
-            NSLog(@"%@", error);
-        }];
+@end
+
+@interface NSArray (NSURLSessionTask)
+
+/**
+暂停任务
+*/
+- (void)pauseTasks;
+
+/**
+取消任务
+*/
+- (void)cancelTasks;
+
+@end

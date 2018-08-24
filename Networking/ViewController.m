@@ -7,10 +7,10 @@
 //
 
 #import "ViewController.h"
-#import "CLNetworking.h"
+#import <TTNetworking/TTNetworking.h>
 
 // 测试URL
-#define KMain_URL @"http://123.59.147.87/interface/?"
+#define KMain_URL @"http://test.tiaooo.com/interface/?"
 
 @interface ViewController ()
 
@@ -42,37 +42,41 @@
 //    NSString *titleURL = [NSString  stringWithFormat:@"%@&c=user&m=send_reg_sms&phone=0",KMain_URL];
     
     // GET请求
-    
-//    [CLNetworkingManager getNetworkRequestWithUrlString:titleURL parameters:nil isCache:YES succeed:^(id data) {
-//        NSLog(@"%@",data);
-//    } fail:^(NSError *error) {
+//    [TTNetworkManager GET:titleURL parameters:nil success:^(id responseObject) {
+//        NSLog(@"%@",responseObject);
+//    } failure:^(NSError *error) {
 //        NSLog(@"%@", error);
 //    }];
     
     // GET请求 带缓存时间
-    [CLNetworkingManager getCacheRequestWithUrlString:titleURL parameters:nil cacheTime:0.5 succeed:^(id data) {
-        NSLog(@"%@",data);
-    } fail:^(NSError *error) {
+    [TTNetworkManager GET:titleURL parameters:nil cacheTime:30.0 isRefresh:NO success:^BOOL(id responseObject) {
+        NSLog(@"%@", responseObject);
+        return YES;
+    } failure:^(NSError *error) {
         NSLog(@"%@", error);
     }];
     
-    
     // 上传图片
-//    CLImageModel *model = [[CLImageModel alloc] init];
-//    model.image = [UIImage imageNamed:@"imaged625f"];
-//    model.field = @"file";
-//    [CLNetworkingManager uploadWithURLString:titleURL parameters:nil model:model progress:^(float writeKB, float totalKB) {
-//        NSLog(@"writeKB = %f, totalKB = %f", writeKB, totalKB);
-//    } succeed:^{
-//        NSLog(@"成功");
-//    } fail:^(NSError *error) {
-//        NSLog(@"%@", error);
+//    NSData *data = UIImagePNGRepresentation([UIImage imageNamed:@"imaged625f"]);
+//    TTUploadObject *model = [TTUploadObject objectWithData:data
+//                                                     field:@"file"
+//                                                  fileName:nil
+//                                                  mimeType:@"image/png"];
+//    [TTNetworkManager uploadWithURLString:titleURL parameters:nil uploadObj:model progress:^(int64_t completedUnit, int64_t totalUnit) {
+//        NSLog(@"writeB = %ld, totalB = %ld", completedUnit, totalUnit);
+//    } success:^BOOL(id responseObject) {
+//
+//    } failure:^(NSError *error) {
+//
 //    }];
+    
+    // 取消上传
+//    [TTNetworkManager.uploadTasks cancelTasks]
 }
 
 - (void)clearButtonAction{
-    NSLog(@"cacheSize===%f", [CLNetworkingManager getCacheFileSize]);
-    [CLNetworkingManager clearCaches];
+    NSLog(@"cacheSize===%f", [TTNetworkManager getCacheFileSize]);
+    [TTNetworkManager clearCaches];
 }
 
 - (void)didReceiveMemoryWarning {

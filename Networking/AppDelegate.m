@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "CLNetworking.h"
+#import <TTNetworking/TTNetworking.h>
 
 @interface AppDelegate ()
 
@@ -18,7 +18,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // 检查网络状态
-    [CLNetworkingManager checkNetworkLinkStatus];
+    [TTNetworkManager checkNetworkStatus:^(NSInteger status) {
+        NSLog(@"%ld", status);
+    }];
     
     return YES;
 }
