@@ -74,7 +74,9 @@
 }
 
 - (void)clearButtonAction{
-    NSLog(@"cacheSize===%f", [TTNetworkManager getCacheFileSize]);
+    NSLog(@"cacheSize = %lld B", [TTNetworkManager getCacheFileSize]);
+    
+    // 清理网络缓存
     [TTNetworkManager clearCaches];
 }
 

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-static NSString *NetworkCacheFile = @"NetworkCache";
+static NSString *NetworkCacheFile = @"com.caches.networking";
 
 FOUNDATION_EXTERN NSNotificationName const TTNetworkStatusChangeNotification;
 
@@ -82,14 +82,14 @@ FOUNDATION_EXTERN NSNotificationName const TTNetworkStatusChangeNotification;
  @param URLString 请求地址
  @param parameters 请求参数
  @param cacheTime 缓存时间
- @param requestNewData 是否请求新的数据
+ @param fetchNewData 是否获取新的数据
  @param success 成功回调
  @param failure 失败回调
  */
 + (void)GET:(NSString *)URLString
  parameters:(id)parameters
   cacheTime:(NSTimeInterval)cacheTime
-requestNewData:(BOOL)requestNewData
+fetchNewData:(BOOL)fetchNewData
     success:(BOOL (^)(id responseObject))success
     failure:(void (^)(NSError *error))failure;
 
@@ -129,14 +129,14 @@ requestNewData:(BOOL)requestNewData
  @param URLString 请求地址
  @param parameters 请求参数
  @param cacheTime 缓存时间
- @param requestNewData 是否请求新的数据
+ @param fetchNewData 是否获取新的数据
  @param success 成功回调,返回YES缓存,反之不缓存
  @param failure 失败回调
  */
 + (void)POST:(NSString *)URLString
   parameters:(id)parameters
    cacheTime:(NSTimeInterval)cacheTime
-requestNewData:(BOOL)requestNewData
+fetchNewData:(BOOL)fetchNewData
      success:(BOOL (^)(id responseObject))success
      failure:(void (^)(NSError *error))failure;
 
@@ -173,26 +173,6 @@ requestNewData:(BOOL)requestNewData
                                       failure:(void (^)(NSError *error))failure;
 
 /**
- *  获取网络缓存文件大小
- *
- *  @return 多少KB
- */
-+ (float)getCacheFileSize;
-
-/**
- *  清空缓存
- */
-+ (void)clearCaches;
-
-/**
- *  清理单个缓存
- *
- *  @param urlString 缓存url
- *  @param params    请求参数
- */
-+ (void)clearWithUrlString:(NSString *)urlString params:(id)params;
-
-/**
  The data, upload, and download tasks currently run by the managed session.
  */
 + (NSArray<NSURLSessionTask *> *)tasks;
@@ -218,6 +198,28 @@ requestNewData:(BOOL)requestNewData
  @param cancelPendingTasks Whether or not to cancel pending tasks.
  */
 + (void)invalidateSessionCancelingTasks:(BOOL)cancelPendingTasks;
+
+
+/**
+ *  获取网络缓存文件大小
+ *
+ *  @return 单位B
+ */
++ (long long)getCacheFileSize;
+
+/**
+ *  清空缓存
+ */
++ (void)clearCaches;
+
+/**
+ *  清理单个缓存
+ *
+ *  @param urlString 缓存url
+ *  @param params    请求参数
+ */
++ (void)clearWithUrlString:(NSString *)urlString params:(id)params;
+
 
 @end
 

@@ -70,7 +70,13 @@ static AFNetworkReachabilityStatus currentStatus = AFNetworkReachabilityStatusUn
  parameters:(id)parameters
     success:(void (^)(id responseObject))success
     failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypeGET URLString:URLString parameters:parameters cacheTime:0 isRefresh:NO requestNewData:YES success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypeGET
+            URLString:URLString
+           parameters:parameters
+            cacheTime:0
+            isRefresh:NO
+         fetchNewData:YES
+              success:^BOOL(id data) {
         if (success) {
             success(data);
         }
@@ -88,7 +94,13 @@ static AFNetworkReachabilityStatus currentStatus = AFNetworkReachabilityStatusUn
   isRefresh:(BOOL)isRefresh
     success:(BOOL (^)(id responseObject))success
     failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypeGET URLString:URLString parameters:parameters cacheTime:cacheTime isRefresh:isRefresh requestNewData:NO success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypeGET
+            URLString:URLString
+           parameters:parameters
+            cacheTime:cacheTime
+            isRefresh:isRefresh
+         fetchNewData:NO
+              success:^BOOL(id data) {
         if (success) {
             return success(data);
         }
@@ -103,10 +115,16 @@ static AFNetworkReachabilityStatus currentStatus = AFNetworkReachabilityStatusUn
 + (void)GET:(NSString *)URLString
  parameters:(id)parameters
   cacheTime:(NSTimeInterval)cacheTime
-requestNewData:(BOOL)requestNewData
+fetchNewData:(BOOL)fetchNewData
     success:(BOOL (^)(id responseObject))success
     failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypeGET URLString:URLString parameters:parameters cacheTime:cacheTime isRefresh:NO requestNewData:requestNewData success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypeGET
+            URLString:URLString
+           parameters:parameters
+            cacheTime:cacheTime
+            isRefresh:NO
+         fetchNewData:fetchNewData
+              success:^BOOL(id data) {
         if (success) {
             return success(data);
         }
@@ -123,7 +141,13 @@ requestNewData:(BOOL)requestNewData
   parameters:(id)parameters
      success:(void (^)(id responseObject))success
      failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypePOST URLString:URLString parameters:parameters cacheTime:0 isRefresh:NO requestNewData:YES success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypePOST
+            URLString:URLString
+           parameters:parameters
+            cacheTime:0
+            isRefresh:NO
+         fetchNewData:YES
+              success:^BOOL(id data) {
         if (success) {
             success(data);
         }
@@ -141,7 +165,13 @@ requestNewData:(BOOL)requestNewData
    isRefresh:(BOOL)isRefresh
      success:(BOOL (^)(id responseObject))success
      failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypePOST URLString:URLString parameters:parameters cacheTime:cacheTime isRefresh:isRefresh requestNewData:NO success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypePOST
+            URLString:URLString
+           parameters:parameters
+            cacheTime:cacheTime
+            isRefresh:isRefresh
+         fetchNewData:NO
+              success:^BOOL(id data) {
         if (success) {
             return success(data);
         }
@@ -156,10 +186,16 @@ requestNewData:(BOOL)requestNewData
 + (void)POST:(NSString *)URLString
   parameters:(id)parameters
    cacheTime:(NSTimeInterval)cacheTime
-requestNewData:(BOOL)requestNewData
+fetchNewData:(BOOL)fetchNewData
      success:(BOOL (^)(id responseObject))success
      failure:(void (^)(NSError *error))failure{
-    [self requestType:TTNetworkRequestTypePOST URLString:URLString parameters:parameters cacheTime:cacheTime isRefresh:NO requestNewData:requestNewData success:^BOOL(id data) {
+    [self requestType:TTNetworkRequestTypePOST
+            URLString:URLString
+           parameters:parameters
+            cacheTime:cacheTime
+            isRefresh:NO
+         fetchNewData:fetchNewData
+              success:^BOOL(id data) {
         if (success) {
             return success(data);
         }
@@ -177,7 +213,8 @@ requestNewData:(BOOL)requestNewData
                                            progress:(void (^)(int64_t, int64_t))progress
                                   completionHandler:(void (^)(NSURLResponse *, NSURL *, NSError *))completionHandler{
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:URLString]];
-    NSURLSessionDownloadTask *task = [self.manager downloadTaskWithRequest:request progress:^(NSProgress * _Nonnull downloadProgress) {
+    NSURLSessionDownloadTask *task = [self.manager downloadTaskWithRequest:request
+                                                                  progress:^(NSProgress * _Nonnull downloadProgress) {
         if (progress) {
             progress(downloadProgress.totalUnitCount, downloadProgress.completedUnitCount);
         }
@@ -204,7 +241,9 @@ requestNewData:(BOOL)requestNewData
                                       success:(BOOL (^)(id responseObject))success
                                       failure:(void (^)(NSError *error))failure{
     return
-    [self.manager POST:URLString parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
+    [self.manager POST:URLString
+            parameters:parameters
+constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         // 拼接data到请求体，这个block的参数是遵守AFMultipartFormData协议的。
         NSString *fileName = uploadObj.fileName;
         if (fileName == nil || ![fileName isKindOfClass:[NSString class]] || fileName.length == 0) {
@@ -242,19 +281,19 @@ requestNewData:(BOOL)requestNewData
          parameters:(id)parameters
           cacheTime:(NSTimeInterval)cacheTime
           isRefresh:(BOOL)isRefresh
-     requestNewData:(BOOL)requestNewData
+       fetchNewData:(BOOL)fetchNewData
             success:(BOOL(^)(id data))success
             failure:(void(^)(NSError *error))failure{
     // 如果缓存且不是刷新
     NSString *key = [self cacheKey:URLString params:parameters];
     if (cacheTime > 0 && !isRefresh) {
-        NSTimeInterval saveTime = [[NSUserDefaults standardUserDefaults] doubleForKey:key];
+        NSTimeInterval saveTime = [self readCacheTimeWithKey:key];
         if (saveTime) {
-            id cacheData = [self cahceResponseWithKey:key];
+            id cacheData = [self readCacheDataWithKey:key];
             if (cacheData) {
                 NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
                 if ((currentTime-saveTime) < cacheTime) {
-                    if (requestNewData) {
+                    if (fetchNewData) {
                         if (success) {
                             success(cacheData);
                         }
@@ -270,13 +309,15 @@ requestNewData:(BOOL)requestNewData
     }
     if (type == TTNetworkRequestTypeGET) {
         // GET请求
-        [self.manager GET:URLString parameters:parameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [self.manager GET:URLString
+               parameters:parameters
+                 progress:nil
+                  success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             // 请求成功，加入缓存，解析数据
             if (success) {
                 BOOL save = success(responseObject);
                 if (save && cacheTime > 0.0) {
-                    [[NSUserDefaults standardUserDefaults] setDouble:[NSDate date].timeIntervalSince1970 forKey:key];
-                    [self cacheResponseObject:responseObject key:key];
+                    [self saveCacheResponseObject:responseObject key:key];
                 }
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -295,15 +336,16 @@ requestNewData:(BOOL)requestNewData
         
     }else{
         // POST请求
-        [self.manager POST:URLString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
+        [self.manager POST:URLString
+                parameters:parameters
+                  progress:^(NSProgress * _Nonnull uploadProgress) {
             // 请求的进度
         } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
             // 请求成功，加入缓存，解析数据
             if (success) {
                 BOOL save = success(responseObject);
                 if (save && cacheTime > 0.0) {
-                    [[NSUserDefaults standardUserDefaults] setDouble:[NSDate date].timeIntervalSince1970 forKey:key];
-                    [self cacheResponseObject:responseObject key:key];
+                    [self saveCacheResponseObject:responseObject key:key];
                 }
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
@@ -336,6 +378,33 @@ requestNewData:(BOOL)requestNewData
     return key;
 }
 
++ (NSString *)cacheDataPathWithKey:(NSString *)key{
+    return [[self.cachePath stringByAppendingPathComponent:key] stringByAppendingPathExtension:@"dat"];
+}
+
++ (NSString *)cacheTimePathWithKey:(NSString *)key{
+    return [[self.cachePath stringByAppendingPathComponent:key] stringByAppendingPathExtension:@"cfg"];
+}
+
+
+/**
+ 读取缓存时间
+
+ @param key key
+ @return 时间戳
+ */
++ (NSTimeInterval)readCacheTimeWithKey:(NSString *)key {
+    NSData *timeData = [[NSFileManager defaultManager] contentsAtPath:[self cacheTimePathWithKey:key]];
+    if (!timeData) {
+        return 0;
+    }
+    NSString *timeStr = [[NSString alloc] initWithData:timeData encoding:NSUTF8StringEncoding];
+    if (!timeStr) {
+        return 0;
+    }
+    return [timeStr doubleValue];
+}
+
 /**
  *  读取缓存
  *
@@ -343,10 +412,8 @@ requestNewData:(BOOL)requestNewData
  *
  *  @return 数据data
  */
-+ (id)cahceResponseWithKey:(NSString *)key {
-    NSString *path = [self.cachePath stringByAppendingPathComponent:key];
-    NSData *data = [[NSFileManager defaultManager] contentsAtPath:path];
-    return data;
++ (nullable NSData *)readCacheDataWithKey:(NSString *)key {
+    return [[NSFileManager defaultManager] contentsAtPath:[self cacheDataPathWithKey:key]];
 }
 
 
@@ -356,11 +423,18 @@ requestNewData:(BOOL)requestNewData
  *  @param responseObject 请求成功数据
  *  @param key            请求地址
  */
-+ (void)cacheResponseObject:(id)responseObject key:(NSString *)key {
-    NSString *path = [self.cachePath stringByAppendingPathComponent:key];
-    [self deleteFileWithPath:path];
-    if (![[NSFileManager defaultManager] createFileAtPath:path contents:responseObject attributes:nil]) {
-        NSLog(@"Network Cache Save Error: %@\n", path);
++ (void)saveCacheResponseObject:(id)responseObject key:(NSString *)key {
+    NSString *dataPath = [self cacheDataPathWithKey:key];
+    [self deleteFileWithPath:dataPath];
+    if ([[NSFileManager defaultManager] createFileAtPath:dataPath contents:responseObject attributes:nil]) {
+        NSData *timeData = [[NSString stringWithFormat:@"%.2f", [[NSDate date] timeIntervalSince1970]] dataUsingEncoding:NSUTF8StringEncoding];
+        NSString *timePath = [self cacheTimePathWithKey:key];;
+        [self deleteFileWithPath:timePath];
+        if (![[NSFileManager defaultManager] createFileAtPath:timePath contents:timeData attributes:nil]) {
+            NSLog(@"Network Cache Save Time Error: %@\n", timePath);
+        }
+    }else{
+        NSLog(@"Network Cache Save Data Error: %@\n", dataPath);
     }
 }
 
@@ -370,18 +444,16 @@ requestNewData:(BOOL)requestNewData
  *  @param path 文件路径
  */
 + (void)deleteFileWithPath:(NSString *)path{
-    NSFileManager *fm = [NSFileManager defaultManager];
-    BOOL exist = [fm fileExistsAtPath:path];
-    NSError *err;
-    if (exist) {
-        [fm removeItemAtPath:path error:&err];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        NSError *err;
+        [[NSFileManager defaultManager] removeItemAtPath:path error:&err];
         if (err) {
             NSLog(@"Network File Remove Error, %@", err.localizedDescription);
         }
     }
 }
 
-//单个文件的大小
+// 单个文件的大小
 + (long long)fileSizeAtPath:(NSString*)filePath{
     if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
         return [[[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil] fileSize];
@@ -391,47 +463,6 @@ requestNewData:(BOOL)requestNewData
 
 #pragma mark -
 #pragma mark -- Public Methods --
-//遍历文件夹获得文件夹大小，返回多少KB
-+ (float)getCacheFileSize{
-    NSString *folderPath = self.cachePath;
-    NSFileManager* fm = [NSFileManager defaultManager];
-    if (![fm fileExistsAtPath:folderPath]) return 0;
-    NSEnumerator *childFilesEnumerator = [[fm subpathsAtPath:folderPath] objectEnumerator];
-    NSString* fileName;
-    long long folderSize = 0;
-    while ((fileName = [childFilesEnumerator nextObject]) != nil){
-        NSString* fileAbsolutePath = [folderPath stringByAppendingPathComponent:fileName];
-        folderSize += [self fileSizeAtPath:fileAbsolutePath];
-    }
-    return folderSize/1024.0;
-}
-
-// 清空缓存
-+ (void)clearCaches{
-    // 删除CacheDefaults中的存放时间和地址的键值对，并删除cache文件夹
-    NSString *directoryPath = self.cachePath;
-    NSFileManager *fm = [NSFileManager defaultManager];
-    if ([fm fileExistsAtPath:directoryPath]){
-        NSEnumerator *childFilesEnumerator = [[fm subpathsAtPath:directoryPath] objectEnumerator];
-        NSString *key;
-        while ((key = [childFilesEnumerator nextObject]) != nil){
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
-        }
-    }
-    if ([fm fileExistsAtPath:directoryPath isDirectory:nil]) {
-        NSError *error = nil;
-        [fm removeItemAtPath:directoryPath error:&error];
-        if (error) {
-            NSLog(@"Clear Network Caches Error: %@", error);
-        }
-    }
-}
-
-+ (void)clearWithUrlString:(NSString *)urlString params:(id)params{
-    NSString *key = [self cacheKey:urlString params:params];
-    NSString *path = [self.cachePath stringByAppendingPathComponent:key];
-    [self deleteFileWithPath:path];
-}
 
 /**
  The data, upload, and download tasks currently run by the managed session.
@@ -459,6 +490,31 @@ requestNewData:(BOOL)requestNewData
  */
 + (void)invalidateSessionCancelingTasks:(BOOL)cancelPendingTasks{
     [self.manager invalidateSessionCancelingTasks:cancelPendingTasks];
+}
+
+
++ (long long)getCacheFileSize{
+    NSString *folderPath = self.cachePath;
+    NSFileManager* fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath:folderPath]) return 0;
+    NSEnumerator *childFilesEnumerator = [[fm subpathsAtPath:folderPath] objectEnumerator];
+    NSString* fileName;
+    long long folderSize = 0;
+    while ((fileName = [childFilesEnumerator nextObject]) != nil){
+        NSString* fileAbsolutePath = [folderPath stringByAppendingPathComponent:fileName];
+        folderSize += [self fileSizeAtPath:fileAbsolutePath];
+    }
+    return folderSize;
+}
+
++ (void)clearCaches{
+    [self deleteFileWithPath:self.cachePath];
+}
+
++ (void)clearWithUrlString:(NSString *)urlString params:(id)params{
+    NSString *key = [self cacheKey:urlString params:params];
+    [self deleteFileWithPath:[self cacheDataPathWithKey:key]];
+    [self deleteFileWithPath:[self cacheTimePathWithKey:key]];
 }
 
 @end

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TTNetworking'
-  s.version          = '1.0.0'
+  s.version          = '1.0.2'
   s.summary          = '基于AFNetworking3.0封装的网络请求框架'
 
 # This description is used to generate tags and improve search results.
