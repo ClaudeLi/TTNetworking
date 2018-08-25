@@ -1,0 +1,9 @@
+use_frameworks!
+
+target 'TTNetworking_Example' do
+  pod 'TTNetworking', :path => '../'
+  
+  target 'TTNetworking_Tests' do
+    inherit! :search_paths
+  end
+end
