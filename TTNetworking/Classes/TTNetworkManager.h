@@ -160,14 +160,14 @@ fetchNewData:(BOOL)fetchNewData
 
  @param URLString 请求地址
  @param parameters 请求参数
- @param uploadObj 上传对象
+ @param objs 上传对象
  @param progress 上传进度
  @param success 成功回调
  @param failure 失败回调
  */
 + (NSURLSessionDataTask *)uploadWithURLString:(NSString *)URLString
                                    parameters:(id)parameters
-                                    uploadObj:(TTUploadObject *)uploadObj
+                                         objs:(NSArray <TTUploadObject *>*)objs
                                      progress:(void (^)(int64_t completedUnit, int64_t totalUnit))progress
                                       success:(BOOL (^)(id responseObject))success
                                       failure:(void (^)(NSError *error))failure;

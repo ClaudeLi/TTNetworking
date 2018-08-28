@@ -236,7 +236,7 @@ fetchNewData:(BOOL)fetchNewData
 // 文件上传
 + (NSURLSessionDataTask *)uploadWithURLString:(NSString *)URLString
                                    parameters:(id)parameters
-                                    uploadObj:(TTUploadObject *)uploadObj
+                                         objs:(NSArray <TTUploadObject *>*)objs
                                      progress:(void (^)(int64_t completedUnit, int64_t totalUnit))progress
                                       success:(BOOL (^)(id responseObject))success
                                       failure:(void (^)(NSError *error))failure{
@@ -245,12 +245,15 @@ fetchNewData:(BOOL)fetchNewData
             parameters:parameters
 constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         // 拼接data到请求体，这个block的参数是遵守AFMultipartFormData协议的。
-        NSString *fileName = uploadObj.fileName;
+    for (int i = 0; i < objs.count; i++) {
+        TTUploadObject *obj = objs[i];
+        NSString *fileName = obj.fileName;
         if (fileName == nil || ![fileName isKindOfClass:[NSString class]] || fileName.length == 0) {
             // 如果文件名为空，以时间命名文件名
-            fileName = [NSString stringWithFormat:@"%.0f", ([[NSDate date] timeIntervalSince1970] * 1000000)];
+            fileName = [NSString networkingUrlString_md5:[NSString stringWithFormat:@"%f_%ld", [[NSDate date] timeIntervalSince1970], (long)i]];
         }
-        [formData appendPartWithFileData:uploadObj.data name:uploadObj.field fileName:fileName mimeType:uploadObj.mimeType];
+        [formData appendPartWithFileData:obj.data name:obj.field fileName:fileName mimeType:obj.mimeType];
+    }
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         if (progress) {
             progress(uploadProgress.completedUnitCount, uploadProgress.totalUnitCount);
